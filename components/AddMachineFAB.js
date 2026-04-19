@@ -15,8 +15,9 @@ export default function AddMachineFAB({ onInserted }) {
   const [status, setStatus] = useState("Operational");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const canSubmit = name.trim().length > 0 && String(year).trim().length > 0 && !saving;
-
+  const [model, setModel] = useState("");
+  const [type, setType] = useState("Solid State");
+  const canSubmit = name.trim().length > 0 && model.trim().length > 0 && String(year).trim().length > 0 && !saving;
   useEffect(() => {
     if (!open) return;
     setError("");
@@ -59,7 +60,7 @@ export default function AddMachineFAB({ onInserted }) {
 
     const { data, error: insertError } = await supabase
       .from("machines")
-      .insert({ name: trimmed, year: yearNum, status })
+      .insert({ name: trimmed, model: model.trim(), type: type,  year: yearNum, status })
       .select("*")
       .single();
 
@@ -74,6 +75,8 @@ export default function AddMachineFAB({ onInserted }) {
     setOpen(false);
     setName("");
     setYear("");
+    setModel(""); // Reset manufacturer
+    setType("Solid State"); // Reset to default
     setStatus("Operational");
   }
 
@@ -149,6 +152,32 @@ export default function AddMachineFAB({ onInserted }) {
                     max={new Date().getFullYear() + 1}
                   />
                 </div>
+
+                {/* Model Field */}
+<div className={styles.field}>
+  <label className={styles.label} htmlFor={`${titleId}-model`}>Manufacturer</label>
+  <input
+    id={`${titleId}-model`}
+    className={styles.input}
+    value={model}
+    onChange={(e) => setModel(e.target.value)}
+    placeholder="e.g. Bally / Williams"
+  />
+</div>
+
+{/* Type Field */}
+<div className={styles.field}>
+  <label className={styles.label} htmlFor={`${titleId}-type`}>Technology</label>
+  <select
+    id={`${titleId}-type`}
+    className={styles.select}
+    value={type}
+    onChange={(e) => setType(e.target.value)}
+  >
+    <option value="Solid State">Solid State</option>
+    <option value="Electro-Mechanical">Electro-Mechanical</option>
+  </select>
+</div>
 
                 <div className={styles.field}>
                   <label className={styles.label} htmlFor={`${titleId}-status`}>
