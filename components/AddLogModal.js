@@ -2,35 +2,47 @@
 import { useState } from 'react';
 import { getBrowserSupabaseClient } from '@/lib/supabase';
 
-export default function AddLogModal({ machineId, machineName, onClose }) {
-  const [note, setNote] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
+export default function AddLogModal({ machine, onClose }) {
+    const [note, setNote] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
+  
+    // We extract the name and ID from the 'machine' object here
+    const machineId = machine?.id;
+    const displayName = machine?.name || "Machine";
+    const pendingStatus = machine?.pendingStatus;
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    if (!note.trim()) return;
-    setIsSaving(true);
-
-    const supabase = getBrowserSupabaseClient();
-    const { error } = await supabase
-      .from('maintenance_logs')
-      .insert([{ 
-        machine_id: machineId, 
-        notes: note 
-      }]);
-
-    if (error) {
-      alert("Error saving note: " + error.message);
-      setIsSaving(false);
-    } else {
-      // Success!
-      setIsSaving(false);
-      setNote('');
-      onClose(); // Close the modal
-      alert("Note saved for " + machineName + "!");
-    }
-  }
-
+    async function handleSubmit(e) {
+        e.preventDefault();
+        if (!note.trim()) return;
+        setIsSaving(true);
+    
+        const supabase = getBrowserSupabaseClient();
+    
+        // 1. Save the Log
+        const { error: logError } = await supabase
+          .from('maintenance_logs')
+          .insert([{ machine_id: machineId, notes: note }]);
+    
+        if (logError) {
+          alert("Error saving log: " + logError.message);
+          setIsSaving(false);
+          return;
+        }
+    
+        // 2. Update the Status (only if we came from the status menu)
+        if (pendingStatus) {
+          await supabase
+            .from('machines')
+            .update({ status: pendingStatus })
+            .eq('id', machineId);
+        }
+    
+        alert(`Note saved for ${displayName}!`); // This fixes the "undefined"
+        setIsSaving(false);
+        onClose();
+        window.location.reload(); 
+      }
+      console.log("Modal received this machine:", machine);
   return (
     <div style={{
       position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
@@ -43,8 +55,7 @@ export default function AddLogModal({ machineId, machineName, onClose }) {
         backgroundColor: '#1a1f29', border: '1px solid #22d3ee',
         padding: '2rem', borderRadius: '12px', width: '100%', maxWidth: '400px'
       }}>
-        <h3 style={{ color: '#fff', marginBottom: '1rem' }}>Log Repair: {machineName}</h3>
-        <form onSubmit={handleSubmit}>
+<h2>Log Note for {displayName}</h2>        <form onSubmit={handleSubmit}>
           <textarea
             autoFocus
             required

@@ -149,7 +149,7 @@ export default function MachineDashboard({ initialMachines }) {
       onDeleted={onMachineDeleted}
       onDeleteFailed={onMachineDeleteFailed}
       /* ADD THIS NEW PROP BELOW */
-      onAddNote={() => setLoggingMachine(row)} 
+      onAddNote={(pendingStatus) => setLoggingMachine({ ...row, pendingStatus })}
       onViewHistory={() => setViewingHistory(row)}
     />
   ))}
@@ -158,22 +158,13 @@ export default function MachineDashboard({ initialMachines }) {
 
       <AddMachineFAB onInserted={onInserted} />
 
-      {loggingMachine && (
+{/* Only one copy of the modal, passing the whole machine object */}
+{loggingMachine && (
   <AddLogModal 
-    machineId={loggingMachine.id} 
-    machineName={loggingMachine.name} 
+    machine={loggingMachine} 
     onClose={() => setLoggingMachine(null)} 
   />
 )}
-
-{/* This lives outside the grid, so it can cover the whole screen! */}
-{loggingMachine && (
-        <AddLogModal 
-          machineId={loggingMachine.id} 
-          machineName={loggingMachine.name} 
-          onClose={() => setLoggingMachine(null)} 
-        />
-      )}
 
       {/* HISTORY DRAWER RECEIVER */}
       {viewingHistory && (

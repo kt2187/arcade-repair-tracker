@@ -80,6 +80,15 @@ export default function MachineCard({
   async function setStatus(nextStatus) {
     if (!id) return;
     setStatusMenuOpen(false);
+
+    // INTERCEPT: If status is Broken or Maintenance, open the note modal instead of saving
+    if (nextStatus === 'Broken' || nextStatus === 'Maintenance') {
+      // We pass the new status to the Dashboard so it knows what to update later
+      onAddNote(nextStatus); 
+      return; // Stop here! The modal will handle the rest.
+    }
+
+    // Normal flow for "Operational"
     const prevStatus = statusValue;
     setOptimisticStatus(nextStatus);
     if (typeof onStatusChange === "function") onStatusChange(id, nextStatus);
@@ -264,45 +273,7 @@ export default function MachineCard({
         </>
       ) : null}
 
-      {/* ADD REPAIR NOTE BUTTON */}
-      <div style={{ marginTop: 'auto', paddingTop: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
-        <button 
-          onClick={() => setLogModalOpen(true)}
-          style={{
-            backgroundColor: 'rgba(248, 250, 252, 0.05)',
-            border: '1px solid rgba(248, 250, 252, 0.1)',
-            color: 'rgba(248, 250, 252, 0.8)',
-            padding: '6px 12px',
-            borderRadius: '6px',
-            fontSize: '0.8rem',
-            fontWeight: '500',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(248, 250, 252, 0.1)';
-            e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.4)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(248, 250, 252, 0.05)';
-            e.currentTarget.style.borderColor = 'rgba(248, 250, 252, 0.1)';
-          }}
-        >
-          <span style={{ color: '#22d3ee', fontSize: '1.1rem' }}>+</span> 
-          Add Note
-        </button>
-      </div>
-
-      {logModalOpen && (
-  <AddLogModal 
-    machineId={id} 
-    machineName={name} 
-    onClose={() => setLogModalOpen(false)} 
-  />
-)}
+      
 
     </article>
   );
