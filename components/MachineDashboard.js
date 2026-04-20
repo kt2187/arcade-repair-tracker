@@ -7,8 +7,11 @@ import EmptyFloorState from "@/components/EmptyFloorState";
 import MachineCard from "@/components/MachineCard";
 import StatsBar from "@/components/StatsBar";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
+import AddLogModal from "./AddLogModal";
 
 export default function MachineDashboard({ initialMachines }) {
+  const [loggingMachine, setLoggingMachine] = useState(null); 
+// null means no modal is open. When it has a machine object, the modal pops up.
   const [machines, setMachines] = useState(initialMachines ?? []);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -133,22 +136,42 @@ export default function MachineDashboard({ initialMachines }) {
         </p>
       ) : (
         <div style={gridStyle}>
-          {filteredMachines.map((row) => (
-            <MachineCard
-              key={row.id ?? `${row.name}-${row.status}`}
-              id={row.id}
-              name={row.name ?? "Untitled"}
-              status={row.status}
-              year={row.year ?? "—"}
-              onStatusChange={onOptimisticStatusChange}
-              onDeleted={onMachineDeleted}
-              onDeleteFailed={onMachineDeleteFailed}
-            />
-          ))}
-        </div>
+  {filteredMachines.map((row) => (
+    <MachineCard
+      key={row.id ?? `${row.name}-${row.status}`}
+      id={row.id}
+      name={row.name ?? "Untitled"}
+      status={row.status}
+      year={row.year ?? "—"}
+      onStatusChange={onOptimisticStatusChange}
+      onDeleted={onMachineDeleted}
+      onDeleteFailed={onMachineDeleteFailed}
+      /* ADD THIS NEW PROP BELOW */
+      onAddNote={() => setLoggingMachine(row)} 
+    />
+  ))}
+</div>
       )}
 
       <AddMachineFAB onInserted={onInserted} />
+
+      {loggingMachine && (
+  <AddLogModal 
+    machineId={loggingMachine.id} 
+    machineName={loggingMachine.name} 
+    onClose={() => setLoggingMachine(null)} 
+  />
+)}
+
+{/* This lives outside the grid, so it can cover the whole screen! */}
+{loggingMachine && (
+        <AddLogModal 
+          machineId={loggingMachine.id} 
+          machineName={loggingMachine.name} 
+          onClose={() => setLoggingMachine(null)} 
+        />
+      )}
+      
     </>
   );
 }

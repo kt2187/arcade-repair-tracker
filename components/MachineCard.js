@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
+import AddLogModal from "./AddLogModal";
 import styles from "./MachineCard.module.css";
 
 const STATUS_OPTIONS = ["Operational", "Broken", "Maintenance"];
@@ -24,6 +25,7 @@ export default function MachineCard({
   onStatusChange,
   onDeleted,
   onDeleteFailed,
+  onAddNote
 }) {
   const statusMenuId = useId();
   const actionsMenuId = useId();
@@ -34,6 +36,7 @@ export default function MachineCard({
   const [optimisticStatus, setOptimisticStatus] = useState(undefined);
   const [statusMenuOpen, setStatusMenuOpen] = useState(false);
   const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
+  const [logModalOpen, setLogModalOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const statusValue = optimisticStatus ?? status;
@@ -156,6 +159,7 @@ export default function MachineCard({
             </button>
           </div>
         ) : null}
+        
       </div>
 
       <h2 className={styles.name}>{name}</h2>
@@ -247,6 +251,47 @@ export default function MachineCard({
           </div>
         </>
       ) : null}
+
+      {/* ADD REPAIR NOTE BUTTON */}
+      <div style={{ marginTop: 'auto', paddingTop: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
+        <button 
+          onClick={() => setLogModalOpen(true)}
+          style={{
+            backgroundColor: 'rgba(248, 250, 252, 0.05)',
+            border: '1px solid rgba(248, 250, 252, 0.1)',
+            color: 'rgba(248, 250, 252, 0.8)',
+            padding: '6px 12px',
+            borderRadius: '6px',
+            fontSize: '0.8rem',
+            fontWeight: '500',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(248, 250, 252, 0.1)';
+            e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.4)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(248, 250, 252, 0.05)';
+            e.currentTarget.style.borderColor = 'rgba(248, 250, 252, 0.1)';
+          }}
+        >
+          <span style={{ color: '#22d3ee', fontSize: '1.1rem' }}>+</span> 
+          Add Note
+        </button>
+      </div>
+
+      {logModalOpen && (
+  <AddLogModal 
+    machineId={id} 
+    machineName={name} 
+    onClose={() => setLogModalOpen(false)} 
+  />
+)}
+
     </article>
   );
 }
