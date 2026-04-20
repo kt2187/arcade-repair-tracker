@@ -8,12 +8,14 @@ import MachineCard from "@/components/MachineCard";
 import StatsBar from "@/components/StatsBar";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 import AddLogModal from "./AddLogModal";
+import HistoryDrawer from "./HistoryDrawer";
 
 export default function MachineDashboard({ initialMachines }) {
   const [loggingMachine, setLoggingMachine] = useState(null); 
 // null means no modal is open. When it has a machine object, the modal pops up.
   const [machines, setMachines] = useState(initialMachines ?? []);
   const [search, setSearch] = useState("");
+  const [viewingHistory, setViewingHistory] = useState(null);
   const [statusFilter, setStatusFilter] = useState("All");
 
   useEffect(() => {
@@ -148,6 +150,7 @@ export default function MachineDashboard({ initialMachines }) {
       onDeleteFailed={onMachineDeleteFailed}
       /* ADD THIS NEW PROP BELOW */
       onAddNote={() => setLoggingMachine(row)} 
+      onViewHistory={() => setViewingHistory(row)}
     />
   ))}
 </div>
@@ -171,7 +174,15 @@ export default function MachineDashboard({ initialMachines }) {
           onClose={() => setLoggingMachine(null)} 
         />
       )}
-      
+
+      {/* HISTORY DRAWER RECEIVER */}
+      {viewingHistory && (
+        <HistoryDrawer 
+          machine={viewingHistory} 
+          onClose={() => setViewingHistory(null)} 
+        />
+      )}
+
     </>
   );
 }

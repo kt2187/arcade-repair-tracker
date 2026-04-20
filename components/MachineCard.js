@@ -25,7 +25,8 @@ export default function MachineCard({
   onStatusChange,
   onDeleted,
   onDeleteFailed,
-  onAddNote
+  onAddNote,
+  onViewHistory
 }) {
   const statusMenuId = useId();
   const actionsMenuId = useId();
@@ -162,7 +163,18 @@ export default function MachineCard({
         
       </div>
 
-      <h2 className={styles.name}>{name}</h2>
+      <h2 
+  className={styles.name} 
+  onClick={onViewHistory} 
+  style={{ 
+    cursor: 'pointer', 
+    transition: 'color 0.2s ease' 
+  }}
+  onMouseOver={(e) => e.currentTarget.style.color = '#22d3ee'}
+  onMouseOut={(e) => e.currentTarget.style.color = 'rgba(248, 250, 252, 0.95)'}
+>
+  {name}
+</h2>
       <div className={styles.meta}>
         <div className={styles.statusWrap}>
           <button
